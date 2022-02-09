@@ -55,31 +55,33 @@ func jwtMiddleware(next http.Handler) http.Handler {
 		} else {
 			jwtToken := authHeader[1]
 
+			//Get the latest Public JWK keys from Azure
 			keySet, err := jwk.Fetch(r.Context(), "https://login.microsoftonline.com/common/discovery/keys")
 
 			token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 				}
+				//Check if kid exists in the token
 				kid, ok := token.Header["kid"].(string)
 				if !ok {
 					return nil, fmt.Errorf("kid header not found")
 				}
-
+				//Get the keys based on kid
 				keys, ok := keySet.LookupKeyID(kid)
 				if !ok {
 					return nil, fmt.Errorf("key %v not found", kid)
 				}
-
-				publickey := &rsa.PublicKey{}
-				err = keys.Raw(publickey)
+				//Get the public key from the key
+				publicKey := &rsa.PublicKey{}
+				err = keys.Raw(publicKey)
 				if err != nil {
 					return nil, fmt.Errorf("could not parse pubkey")
 				}
 
-				return publickey, nil
+				return publicKey, nil
 			})
-
+			//Check if token is valid
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				ctx := context.WithValue(r.Context(), "props", claims)
 				//Add User to context and to database if needed
