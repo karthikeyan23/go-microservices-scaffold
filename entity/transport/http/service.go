@@ -84,7 +84,7 @@ func jwtMiddleware(next http.Handler) http.Handler {
 			//Check if token is valid
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				ctx := context.WithValue(r.Context(), "props", claims)
-				//Add User to context and to database if needed
+				//TO-DO: Add claims validation and adding user to database if not exists
 				next.ServeHTTP(w, r.WithContext(ctx))
 			} else {
 				fmt.Println(err)
