@@ -37,31 +37,17 @@ func main() {
 		return
 	}
 	//Print the log on service exit
-	defer func(info log.Logger, keyvals ...interface{}) {
-		err := info.Log(keyvals)
-		if err != nil {
-
-		}
-	}(level.Info(logger), "msg", "service ended")
+	defer serviceClosure(logger)
 	//Add OpenTracing tacker
 	tracer := stdopentracing.GlobalTracer()
 	//Create sparse metrics
 	duration := initDurationMetrics()
-
+	//Create a context
 	ctx := context.Background()
 	//Initialize the DataBase
 	db := initDB(dbSource, logger)
 	//Close the database connection on service exit
-	defer func(db *sql.DB) {
-		err := db.Close()
-		if err != nil {
-			err := level.Error(logger).Log("exit", err)
-			if err != nil {
-				return
-			}
-			os.Exit(-1)
-		}
-	}(db)
+	defer closeDB(db, logger)
 	//Initialize the repository
 	svc := initRepo(db, logger)
 	//Initialize the Endpoints
@@ -78,10 +64,19 @@ func main() {
 	//Start the HTTP server
 	go startHttpServer(logger, h, httpAddr, errChannel)
 	//Print the error on service exit
-	err = level.Error(logger).Log("exit", <-errChannel)
+	_ = level.Error(logger).Log("exit", <-errChannel)
+}
+
+func serviceClosure(logger log.Logger) {
+	_ = level.Info(logger).Log("msg", "service terminating")
+}
+func closeDB(db *sql.DB, logger log.Logger) {
+	err := db.Close()
 	if err != nil {
-		return
+		_ = level.Error(logger).Log("exit", err)
+		os.Exit(-1)
 	}
+	_ = level.Info(logger).Log("msg", "database connection closed")
 }
 
 func startHttpServer(logger log.Logger, h http.Handler, httpAddr *string, errChannel chan error) {
