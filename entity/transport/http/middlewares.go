@@ -77,7 +77,11 @@ func getJWTTokenFromHTTPHeader(w http.ResponseWriter, r *http.Request) (string, 
 
 func getJWKPublicKeyForMicrosoftIdentity(ctx context.Context, token *jwt.Token) (interface{}, error) {
 	//Get the latest Public JWK keys from Microsoft Identity Platform
-	keySet, err := jwk.Fetch(ctx, "https://login.microsoftonline.com/common/discovery/keys")
+	jwtKeyURl, err := getJwkKeyURL(token)
+	if err != nil {
+		return nil, err
+	}
+	keySet, err := jwk.Fetch(ctx, jwtKeyURl)
 	if err != nil {
 		return nil, err
 	}
@@ -98,4 +102,15 @@ func getJWKPublicKeyForMicrosoftIdentity(ctx context.Context, token *jwt.Token) 
 		return nil, ErrUnableToParsePublicKey
 	}
 	return publicKey, nil
+}
+
+func getJwkKeyURL(token *jwt.Token) (string, error) {
+	tokenVersion := token.Claims.(jwt.MapClaims)["ver"].(string)
+	if tokenVersion == "1.0" {
+		return "https://login.microsoftonline.com/common/discovery/keys", nil
+	} else if tokenVersion == "2.0" {
+		return "https://login.microsoftonline.com/common/discovery/v2.0/keys", nil
+	} else {
+		return "", ErrUnableToParsePublicKey
+	}
 }
