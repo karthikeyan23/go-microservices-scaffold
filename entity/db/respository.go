@@ -31,10 +31,10 @@ func (r repository) Get(ctx context.Context, id string) (*entity.Entity, error) 
 	err := r.db.QueryRowContext(ctx, "SELECT id, name, created_at FROM entity WHERE id = $1", id).Scan(
 		&aEntity.ID, &aEntity.Name, &aEntity.CreatedAt)
 	if err != nil {
-		level.Error(r.logger).Log("err", err)
+		_ = level.Error(r.logger).Log("err", err)
 		return nil, err
 	}
-	return &aEntity, err
+	return &aEntity, nil
 }
 
 func (r repository) GetAll(ctx context.Context) ([]*entity.Entity, error) {
