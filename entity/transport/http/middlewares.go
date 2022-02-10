@@ -14,6 +14,7 @@ import (
 var (
 	ErrKIDNotFound            = errors.New("kid header not found")
 	ErrUnableToParsePublicKey = errors.New("could not parse public key")
+	ErrUnexpectedTokenVersion = errors.New("unexpected token version")
 )
 
 func genericMiddlewareToSetHTTPHeader(next http.Handler) http.Handler {
@@ -111,6 +112,6 @@ func getJwkKeyURL(token *jwt.Token) (string, error) {
 	} else if tokenVersion == "2.0" {
 		return "https://login.microsoftonline.com/common/discovery/v2.0/keys", nil
 	} else {
-		return "", ErrUnableToParsePublicKey
+		return "", ErrUnexpectedTokenVersion
 	}
 }
