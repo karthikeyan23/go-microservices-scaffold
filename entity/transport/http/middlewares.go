@@ -43,34 +43,29 @@ func jwtMiddlewareForMicrosoftIdentity(next http.Handler) http.Handler {
 			//TO-DO: Add claims validation and adding user to database if not exists
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
-			fmt.Println(err)
 			w.WriteHeader(http.StatusUnauthorized)
-			_, err := w.Write([]byte(""))
-			if err != nil {
-				return
-			}
+			_, _ = w.Write([]byte(""))
 		}
 	})
+}
+
+func provideErrorResponse(w http.ResponseWriter, pError error) error {
+	w.WriteHeader(http.StatusUnauthorized)
+	_, err := w.Write([]byte(pError.Error()))
+	if err != nil {
+		return err
+	}
+	return pError
 }
 
 func getJWTTokenFromHTTPHeader(w http.ResponseWriter, r *http.Request) (string, error) {
 	auth := r.Header.Get("Authorization")
 	if len(auth) == 0 {
-		w.WriteHeader(http.StatusUnauthorized)
-		_, err := w.Write([]byte(ErrEmptyAuthHeader.Error()))
-		if err != nil {
-			return "", ErrEmptyAuthHeader
-		}
-		return "", ErrEmptyAuthHeader
+		return "", provideErrorResponse(w, ErrEmptyAuthHeader)
 	}
 	authHeader := strings.Split(auth, "Bearer ")
 	if len(authHeader) != 2 {
-		w.WriteHeader(http.StatusUnauthorized)
-		_, err := w.Write([]byte(ErrMalformedToken.Error()))
-		if err != nil {
-			return "", ErrMalformedToken
-		}
-		return "", ErrMalformedToken
+		return "", provideErrorResponse(w, ErrMalformedToken)
 	}
 	jwtToken := authHeader[1]
 	return jwtToken, nil
