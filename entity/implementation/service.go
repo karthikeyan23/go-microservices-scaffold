@@ -22,7 +22,7 @@ func NewService(repository entity.Repository, logger log.Logger) entity.Service 
 }
 
 func (s service) GetEntity(ctx context.Context, id string) (*entity.Entity, error) {
-	logger := log.With(s.logger, "method", "GetEntity")
+	logger := log.With(s.logger, "method", "get-entity")
 	aEntity, err := s.repository.Get(ctx, id)
 	if err != nil {
 		_ = level.Error(logger).Log("err", err)
