@@ -3,11 +3,17 @@ package http
 import (
 	"context"
 	"crypto/rsa"
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/lestrrat-go/jwx/jwk"
 	"net/http"
 	"strings"
+)
+
+var (
+	ErrKIDNotFound            = errors.New("kid header not found")
+	ErrUnableToParsePublicKey = errors.New("could not parse public key")
 )
 
 func genericMiddlewareToSetHTTPHeader(next http.Handler) http.Handler {
@@ -78,7 +84,7 @@ func getJWKPublicKeyForMicrosoftIdentity(ctx context.Context, token *jwt.Token) 
 	//Check if kid exists in the token
 	kid, ok := token.Header["kid"].(string)
 	if !ok {
-		return nil, fmt.Errorf("kid header not found")
+		return nil, ErrKIDNotFound
 	}
 	//Get the keys based on kid
 	keys, ok := keySet.LookupKeyID(kid)
@@ -89,7 +95,7 @@ func getJWKPublicKeyForMicrosoftIdentity(ctx context.Context, token *jwt.Token) 
 	publicKey := &rsa.PublicKey{}
 	err = keys.Raw(publicKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse pubkey")
+		return nil, ErrUnableToParsePublicKey
 	}
 	return publicKey, nil
 }

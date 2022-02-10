@@ -47,7 +47,7 @@ func decodeGetEntityRequest(ctx context.Context, r *http.Request) (request inter
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	if e, ok := response.(errorer); ok && e.error() != nil {
+	if e, ok := response.(errorInterface); ok && e.error() != nil {
 		// Not a Go kit transport error, but a business-logic error.
 		// Provide those as HTTP errors.
 		encodeErrorResponse(ctx, e.error(), w)
@@ -56,7 +56,7 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	return json.NewEncoder(w).Encode(response)
 }
 
-type errorer interface {
+type errorInterface interface {
 	error() error
 }
 
