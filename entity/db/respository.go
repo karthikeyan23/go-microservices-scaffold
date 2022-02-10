@@ -27,14 +27,14 @@ func (r repository) Create(ctx context.Context, entity *entity.Entity) error {
 }
 
 func (r repository) Get(ctx context.Context, id string) (*entity.Entity, error) {
-	var entity entity.Entity
+	var aEntity entity.Entity
 	err := r.db.QueryRowContext(ctx, "SELECT id, name, created_at FROM entity WHERE id = $1", id).Scan(
-		&entity.ID, &entity.Name, &entity.CreatedAt)
+		&aEntity.ID, &aEntity.Name, &aEntity.CreatedAt)
 	if err != nil {
 		level.Error(r.logger).Log("err", err)
 		return nil, err
 	}
-	return &entity, err
+	return &aEntity, err
 }
 
 func (r repository) GetAll(ctx context.Context) ([]*entity.Entity, error) {
