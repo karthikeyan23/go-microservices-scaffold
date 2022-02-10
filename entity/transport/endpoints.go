@@ -26,7 +26,7 @@ func MakeEndpoints(s entity.Service, logger log.Logger, duration metrics.Histogr
 	{
 		getEntityEndpoint = makeGetEntityEndpoint(s)
 		getEntityEndpoint = ratelimit.NewErroringLimiter(rate.NewLimiter(
-			rate.Every(time.Second), 10))(getEntityEndpoint)
+			rate.Every(time.Second), 5))(getEntityEndpoint)
 		getEntityEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
 			Name:    "get-entity",
 			Timeout: 30 * time.Second,
