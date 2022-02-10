@@ -76,7 +76,7 @@ func main() {
 	http.DefaultServeMux.Handle("/metrics", promhttp.Handler())
 
 	ctx := context.Background()
-
+	//Initialize the DataBase
 	var db *sql.DB
 	{
 		db, err = sql.Open("postgres", dbSource)
@@ -88,6 +88,7 @@ func main() {
 			os.Exit(-1)
 		}
 	}
+	//Close the database connection on service exit
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
@@ -98,7 +99,7 @@ func main() {
 			os.Exit(-1)
 		}
 	}(db)
-
+	//Initialize the repository
 	var svc entity.Service
 	{
 		repository, err := repo.New(db, logger)
@@ -111,22 +112,22 @@ func main() {
 		}
 		svc = service.NewService(repository, logger)
 	}
-
+	//Initialize the Endpoints
 	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
-
+	//initialize the HTTP transport
 	var h http.Handler
 	{
 		var serverOptions []kithttp.ServerOption
 		h = httptransport.NewHTTPServer(ctx, endpoints, tracer, serverOptions, logger)
 	}
-
+	//Channel to listen for service exit
 	errChannel := make(chan error)
 	go func() {
 		c := make(chan os.Signal)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		errChannel <- fmt.Errorf("%s", <-c)
 	}()
-
+	//Start the HTTP server
 	go func() {
 		err := level.Info(logger).Log("transport", "HTTP", "addr", *httpAddr)
 		if err != nil {
@@ -138,6 +139,7 @@ func main() {
 		}
 		errChannel <- server.ListenAndServe()
 	}()
+	//Print the error on service exit
 	err = level.Error(logger).Log("exit", <-errChannel)
 	if err != nil {
 		return
