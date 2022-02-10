@@ -27,29 +27,12 @@ import (
 
 func main() {
 	//Load command line flags
-	var httpAddr = flag.String("http", ":8080", "HTTP listen address")
-	flag.Parse()
+	httpAddr := setApplicationPort()
 	//Load environment variables for the Database connection string
-	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("SSL_MODE"))
+	dbSource := setDBConnectionString()
 
 	//Create a logger
-	var logger log.Logger
-	{
-		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
-		logger = log.With(logger,
-			"service", "entity",
-			"time:", log.DefaultTimestampUTC,
-			"caller:", log.DefaultCaller,
-		)
-	}
-	//Add the first log for the service
-	err := level.Info(logger).Log("msg", "service started")
+	logger, err := initLogger()
 	if err != nil {
 		return
 	}
@@ -63,31 +46,11 @@ func main() {
 	//Add OpenTracing tacker
 	tracer := stdopentracing.GlobalTracer()
 	//Create sparse metrics
-	var duration metrics.Histogram
-	{
-		// Endpoint-level metrics.
-		duration = prometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "beezlabs",
-			Subsystem: "entity_service",
-			Name:      "request_duration_seconds",
-			Help:      "Request duration in seconds.",
-		}, []string{"method", "success"})
-	}
-	http.DefaultServeMux.Handle("/metrics", promhttp.Handler())
+	duration := initDurationMetrics()
 
 	ctx := context.Background()
 	//Initialize the DataBase
-	var db *sql.DB
-	{
-		db, err = sql.Open("postgres", dbSource)
-		if err != nil {
-			err := level.Error(logger).Log("exit", err)
-			if err != nil {
-				return
-			}
-			os.Exit(-1)
-		}
-	}
+	db := initDB(dbSource, logger)
 	//Close the database connection on service exit
 	defer func(db *sql.DB) {
 		err := db.Close()
@@ -100,18 +63,7 @@ func main() {
 		}
 	}(db)
 	//Initialize the repository
-	var svc entity.Service
-	{
-		repository, err := repo.New(db, logger)
-		if err != nil {
-			err := level.Error(logger).Log("exit", err)
-			if err != nil {
-				return
-			}
-			os.Exit(-1)
-		}
-		svc = service.NewService(repository, logger)
-	}
+	svc := initRepo(db, logger)
 	//Initialize the Endpoints
 	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
 	//initialize the HTTP transport
@@ -144,4 +96,80 @@ func main() {
 	if err != nil {
 		return
 	}
+}
+
+func initRepo(db *sql.DB, logger log.Logger) entity.Service {
+	var svc entity.Service
+	{
+		repository, err := repo.New(db, logger)
+		if err != nil {
+			_ = level.Error(logger).Log("exit", err)
+			os.Exit(-1)
+		}
+		svc = service.NewService(repository, logger)
+	}
+	return svc
+}
+
+func initDB(dbSource string, logger log.Logger) *sql.DB {
+	var err error
+	var db *sql.DB
+	{
+		db, err = sql.Open("postgres", dbSource)
+		if err != nil {
+			_ = level.Error(logger).Log("exit", err)
+			os.Exit(-1)
+		}
+	}
+	return db
+}
+
+func initDurationMetrics() metrics.Histogram {
+	var duration metrics.Histogram
+	{
+		// Endpoint-level metrics.
+		duration = prometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "beezlabs",
+			Subsystem: "entity_service",
+			Name:      "request_duration_seconds",
+			Help:      "Request duration in seconds.",
+		}, []string{"method", "success"})
+	}
+	http.DefaultServeMux.Handle("/metrics", promhttp.Handler())
+	return duration
+}
+
+func initLogger() (log.Logger, error) {
+	var logger log.Logger
+	{
+		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
+		logger = log.With(logger,
+			"service", "entity",
+			"time:", log.DefaultTimestampUTC,
+			"caller:", log.DefaultCaller,
+		)
+	}
+	//Add the first log for the service
+	err := level.Info(logger).Log("msg", "service started")
+	if err != nil {
+		return nil, nil
+	}
+	return logger, err
+}
+
+func setDBConnectionString() string {
+	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("SSL_MODE"))
+	return dbSource
+}
+
+func setApplicationPort() *string {
+	var httpAddr = flag.String("http", ":8080", "HTTP listen address")
+	flag.Parse()
+	return httpAddr
 }
