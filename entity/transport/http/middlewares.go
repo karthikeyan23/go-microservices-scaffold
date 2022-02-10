@@ -93,7 +93,7 @@ func getJWKPublicKeyForMicrosoftIdentity(ctx context.Context, token *jwt.Token) 
 	//Get the keys based on kid
 	keys, ok := keySet.LookupKeyID(kid)
 	if !ok {
-		return nil, fmt.Errorf("key %v not found", kid)
+		return nil, fmt.Errorf("jwk key %v not found", kid)
 	}
 	//Get the public key from the key
 	publicKey := &rsa.PublicKey{}
