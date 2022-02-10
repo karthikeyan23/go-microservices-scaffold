@@ -13,7 +13,6 @@ import (
 	_ "github.com/lib/pq"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go_scafold/entity"
 	repo "go_scafold/entity/db"
 	service "go_scafold/entity/implementation"
@@ -134,7 +133,6 @@ func initDurationMetrics() metrics.Histogram {
 			Help:      "Request duration in seconds.",
 		}, []string{"method", "success"})
 	}
-	http.DefaultServeMux.Handle("/metrics", promhttp.Handler())
 	return duration
 }
 

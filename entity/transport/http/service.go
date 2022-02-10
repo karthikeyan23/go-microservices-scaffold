@@ -9,6 +9,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go_scafold/entity"
 	"go_scafold/entity/transport"
 	"net/http"
@@ -23,6 +24,8 @@ func NewHTTPServer(ctx context.Context, endpoints transport.Endpoints, tracer st
 
 	r.Use(genericMiddlewareToSetHTTPHeader)
 	r.Use(jwtMiddlewareForMicrosoftIdentity)
+
+	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
 
 	r.Methods("GET").Path("/entity/{id}").Handler(kithttp.NewServer(
 		endpoints.GetEntity,
