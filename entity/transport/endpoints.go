@@ -32,7 +32,7 @@ func MakeEndpoints(s entity.Service, logger log.Logger, duration metrics.Histogr
 			Timeout: 30 * time.Second,
 		}))(getEntityEndpoint)
 		getEntityEndpoint = opentracing.TraceEndpoint(tracer, "get-entity")(getEntityEndpoint)
-		getEntityEndpoint = instrumentingMiddleware(duration.With("method", "get-entity"))(getEntityEndpoint)
+		getEntityEndpoint = instrumentationMiddleware(duration.With("method", "get-entity"))(getEntityEndpoint)
 	}
 	return Endpoints{
 		GetEntity: getEntityEndpoint,
