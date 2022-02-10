@@ -74,28 +74,32 @@ func main() {
 	}
 	//Channel to listen for service exit
 	errChannel := make(chan error)
-	go func() {
-		c := make(chan os.Signal)
-		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
-		errChannel <- fmt.Errorf("%s", <-c)
-	}()
+	go waitForInterrupt(errChannel)
 	//Start the HTTP server
-	go func() {
-		err := level.Info(logger).Log("transport", "HTTP", "addr", *httpAddr)
-		if err != nil {
-			return
-		}
-		server := &http.Server{
-			Addr:    *httpAddr,
-			Handler: h,
-		}
-		errChannel <- server.ListenAndServe()
-	}()
+	go startHttpServer(logger, h, httpAddr, errChannel)
 	//Print the error on service exit
 	err = level.Error(logger).Log("exit", <-errChannel)
 	if err != nil {
 		return
 	}
+}
+
+func startHttpServer(logger log.Logger, h http.Handler, httpAddr *string, errChannel chan error) {
+	err := level.Info(logger).Log("transport", "HTTP", "addr", *httpAddr)
+	if err != nil {
+		return
+	}
+	server := &http.Server{
+		Addr:    *httpAddr,
+		Handler: h,
+	}
+	errChannel <- server.ListenAndServe()
+}
+
+func waitForInterrupt(errChannel chan error) {
+	c := make(chan os.Signal)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	errChannel <- fmt.Errorf("%s", <-c)
 }
 
 func initRepo(db *sql.DB, logger log.Logger) entity.Service {
