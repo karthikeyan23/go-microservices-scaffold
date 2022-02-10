@@ -24,19 +24,36 @@ func MakeEndpoints(s entity.Service, logger log.Logger, duration metrics.Histogr
 
 	var getEntityEndpoint endpoint.Endpoint
 	{
-		getEntityEndpoint = makeGetEntityEndpoint(s)
-		getEntityEndpoint = ratelimit.NewErroringLimiter(rate.NewLimiter(
-			rate.Every(time.Second), 5))(getEntityEndpoint)
-		getEntityEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
-			Name:    "get-entity",
-			Timeout: 30 * time.Second,
-		}))(getEntityEndpoint)
-		getEntityEndpoint = opentracing.TraceEndpoint(tracer, "get-entity")(getEntityEndpoint)
-		getEntityEndpoint = instrumentationMiddleware(duration.With("method", "get-entity"))(getEntityEndpoint)
+		getEntityEndpoint = initEndpoint(makeGetEntityEndpoint(s),
+			"get-entity",
+			30*time.Second,
+			5,
+			time.Second,
+			logger,
+			duration,
+			tracer)
 	}
 	return Endpoints{
 		GetEntity: getEntityEndpoint,
 	}
+}
+
+func initEndpoint(endpoint endpoint.Endpoint, name string, circuitBreakerTimeout time.Duration,
+	rateLimit int,
+	rateLimitDuration time.Duration,
+	logger log.Logger,
+	duration metrics.Histogram,
+	tracer stdopentracing.Tracer) endpoint.Endpoint {
+
+	endpoint = ratelimit.NewErroringLimiter(rate.NewLimiter(
+		rate.Every(rateLimitDuration), rateLimit))(endpoint)
+	endpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name:    name,
+		Timeout: circuitBreakerTimeout,
+	}))(endpoint)
+	endpoint = opentracing.TraceEndpoint(tracer, "get-entity")(endpoint)
+	endpoint = instrumentationMiddleware(duration.With("method", "get-entity"))(endpoint)
+	return endpoint
 }
 
 func makeGetEntityEndpoint(s entity.Service) endpoint.Endpoint {
