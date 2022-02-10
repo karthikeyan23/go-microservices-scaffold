@@ -1,12 +1,15 @@
 package entity
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // Entity represents an object within the Domain or Business layer.
 type Entity struct {
-	ID        string `json:"entity_id"`
-	Name      string `json:"entity_name"`
-	CreatedAt int64  `json:"created_at"`
+	ID        string    `json:"entity_id"`
+	Name      string    `json:"entity_name"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // Repository is a generic interface for DB operations

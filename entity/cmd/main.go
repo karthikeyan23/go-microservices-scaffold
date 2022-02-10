@@ -26,9 +26,10 @@ import (
 )
 
 func main() {
+	//Load command line flags
 	var httpAddr = flag.String("http", ":8080", "HTTP listen address")
 	flag.Parse()
-
+	//Load environment variables for the Database connection string
 	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
@@ -37,6 +38,7 @@ func main() {
 		os.Getenv("DB_NAME"),
 		os.Getenv("SSL_MODE"))
 
+	//Create a logger
 	var logger log.Logger
 	{
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
@@ -46,25 +48,27 @@ func main() {
 			"caller:", log.DefaultCaller,
 		)
 	}
+	//Add the first log for the service
 	err := level.Info(logger).Log("msg", "service started")
 	if err != nil {
 		return
 	}
+	//Print the log on service exit
 	defer func(info log.Logger, keyvals ...interface{}) {
 		err := info.Log(keyvals)
 		if err != nil {
 
 		}
 	}(level.Info(logger), "msg", "service ended")
-
+	//Add OpenTracing tacker
 	tracer := stdopentracing.GlobalTracer()
-
+	//Create sparse metrics
 	var duration metrics.Histogram
 	{
 		// Endpoint-level metrics.
 		duration = prometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "example",
-			Subsystem: "addsvc",
+			Namespace: "beezlabs",
+			Subsystem: "entity_service",
 			Name:      "request_duration_seconds",
 			Help:      "Request duration in seconds.",
 		}, []string{"method", "success"})
