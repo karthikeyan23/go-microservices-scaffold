@@ -21,7 +21,6 @@ import (
 
 func main() {
 	var httpAddr = flag.String("http", ":8080", "HTTP listen address")
-	var dbSSLMode = flag.String("db-ssl-mode", "disable", "DB SSL Mode")
 	flag.Parse()
 
 	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
@@ -30,7 +29,7 @@ func main() {
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_NAME"),
-		*dbSSLMode)
+		os.Getenv("SSL_MODE"))
 
 	var logger log.Logger
 	{
