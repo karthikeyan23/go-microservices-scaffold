@@ -12,9 +12,13 @@ import (
 )
 
 var (
+	ErrEmptyAuthHeader        = errors.New("authorization header is empty")
+	ErrMalformedToken         = errors.New("malformed Token")
+	ErrBadRouting             = errors.New("bad routing")
 	ErrKIDNotFound            = errors.New("kid header not found")
 	ErrUnableToParsePublicKey = errors.New("could not parse public key")
 	ErrUnexpectedTokenVersion = errors.New("unexpected token version")
+	ErrJwtTokenInvalid        = errors.New("invalid JWT token")
 )
 
 func genericMiddlewareToSetHTTPHeader(next http.Handler) http.Handler {
@@ -43,13 +47,13 @@ func jwtMiddlewareForMicrosoftIdentity(next http.Handler) http.Handler {
 			//TO-DO: Add claims validation and adding user to database if not exists
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
-			w.WriteHeader(http.StatusUnauthorized)
-			_, _ = w.Write([]byte(""))
+			_ = provideUnauthorisedErrorResponse(w, ErrJwtTokenInvalid)
+			return
 		}
 	})
 }
 
-func provideErrorResponse(w http.ResponseWriter, pError error) error {
+func provideUnauthorisedErrorResponse(w http.ResponseWriter, pError error) error {
 	w.WriteHeader(http.StatusUnauthorized)
 	_, err := w.Write([]byte(pError.Error()))
 	if err != nil {
@@ -61,11 +65,11 @@ func provideErrorResponse(w http.ResponseWriter, pError error) error {
 func getJWTTokenFromHTTPHeader(w http.ResponseWriter, r *http.Request) (string, error) {
 	auth := r.Header.Get("Authorization")
 	if len(auth) == 0 {
-		return "", provideErrorResponse(w, ErrEmptyAuthHeader)
+		return "", provideUnauthorisedErrorResponse(w, ErrEmptyAuthHeader)
 	}
 	authHeader := strings.Split(auth, "Bearer ")
 	if len(authHeader) != 2 {
-		return "", provideErrorResponse(w, ErrMalformedToken)
+		return "", provideUnauthorisedErrorResponse(w, ErrMalformedToken)
 	}
 	jwtToken := authHeader[1]
 	return jwtToken, nil

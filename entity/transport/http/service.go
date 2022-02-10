@@ -3,18 +3,11 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"go_scafold/entity"
 	"go_scafold/entity/transport"
 	"net/http"
-)
-
-var (
-	ErrEmptyAuthHeader = errors.New("authorization header is empty")
-	ErrMalformedToken  = errors.New("malformed Token")
-	ErrBadRouting      = errors.New("bad routing")
 )
 
 func NewHTTPServer(endpoints transport.Endpoints, options []kithttp.ServerOption) http.Handler {
