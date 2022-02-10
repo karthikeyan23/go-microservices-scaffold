@@ -19,10 +19,18 @@ import (
 	"syscall"
 )
 
-var dbSource = "postgresql://beezlabs:plugmein@localhost:5432/kn?sslmode=disable"
-
 func main() {
 	var httpAddr = flag.String("http", ":8080", "HTTP listen address")
+	var dbSSLMode = flag.String("db-ssl-mode", "disable", "DB SSL Mode")
+	flag.Parse()
+
+	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+		*dbSSLMode)
 
 	var logger log.Logger
 	{
@@ -65,8 +73,6 @@ func main() {
 			os.Exit(-1)
 		}
 	}(db)
-
-	flag.Parse()
 
 	var svc entity.Service
 	{
