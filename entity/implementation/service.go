@@ -25,11 +25,11 @@ func (s service) GetEntity(ctx context.Context, id string) (*entity.Entity, erro
 	logger := log.With(s.logger, "method", "GetEntity")
 	aEntity, err := s.repository.Get(ctx, id)
 	if err != nil {
-		err := level.Error(logger).Log("err", err)
-		if err != nil {
-			return nil, err
-		}
+		_ = level.Error(logger).Log("err", err)
 		return nil, err
+	}
+	if aEntity == nil {
+		return nil, entity.ErrEntityNotFound
 	}
 	return aEntity, nil
 }

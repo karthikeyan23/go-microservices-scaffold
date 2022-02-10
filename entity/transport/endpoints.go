@@ -20,8 +20,8 @@ func makeGetEntityEndpoint(s entity.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(GetEntityByIDRequest)
 		aEntity, err := s.GetEntity(ctx, req.ID)
-		if aEntity == nil {
-			return GetEntityByIDResponse{}, nil
+		if err != nil {
+			return nil, err
 		}
 		return GetEntityByIDResponse{
 				ID:        aEntity.ID,

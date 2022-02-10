@@ -1,6 +1,13 @@
 package entity
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var (
+	ErrEntityNotFound = errors.New("entity not found")
+)
 
 // Service Interface contains the methods that are exposed to the transport layer.
 type Service interface {

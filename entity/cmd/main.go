@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"flag"
 	"fmt"
+	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	_ "github.com/lib/pq"
@@ -67,7 +67,6 @@ func main() {
 	}(db)
 
 	flag.Parse()
-	ctx := context.Background()
 
 	var svc entity.Service
 	{
@@ -86,7 +85,8 @@ func main() {
 
 	var h http.Handler
 	{
-		h = httptransport.NewHTTPServer(ctx, endpoints)
+		var serverOptions []kithttp.ServerOption
+		h = httptransport.NewHTTPServer(endpoints, serverOptions)
 	}
 
 	errChannel := make(chan error)
