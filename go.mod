@@ -9,4 +9,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/lestrrat-go/jwx v1.2.18
 	github.com/lib/pq v1.10.4
+	github.com/opentracing/opentracing-go v1.2.0
+	github.com/sony/gobreaker v0.4.1
+	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac
 )

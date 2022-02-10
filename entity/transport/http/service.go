@@ -3,17 +3,23 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"github.com/go-kit/kit/tracing/opentracing"
+	kittransport "github.com/go-kit/kit/transport"
 	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
+	stdopentracing "github.com/opentracing/opentracing-go"
 	"go_scafold/entity"
 	"go_scafold/entity/transport"
 	"net/http"
 )
 
-func NewHTTPServer(endpoints transport.Endpoints, options []kithttp.ServerOption) http.Handler {
+func NewHTTPServer(ctx context.Context, endpoints transport.Endpoints, tracer stdopentracing.Tracer,
+	options []kithttp.ServerOption, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 	errorEncoder := kithttp.ServerErrorEncoder(encodeErrorResponse)
-	options = append(options, errorEncoder)
+	errorHandler := kithttp.ServerErrorHandler(kittransport.NewLogErrorHandler(logger))
+	options = append(options, errorEncoder, errorHandler)
 
 	r.Use(genericMiddlewareToSetHTTPHeader)
 	r.Use(jwtMiddlewareForMicrosoftIdentity)
@@ -22,7 +28,7 @@ func NewHTTPServer(endpoints transport.Endpoints, options []kithttp.ServerOption
 		endpoints.GetEntity,
 		decodeGetEntityRequest,
 		encodeResponse,
-		options...))
+		append(options, kithttp.ServerBefore(opentracing.HTTPToContext(tracer, "get-entity", logger)))...))
 
 	return r
 }

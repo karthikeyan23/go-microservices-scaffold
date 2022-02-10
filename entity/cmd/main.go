@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/go-kit/kit/metrics"
+	"github.com/go-kit/kit/metrics/prometheus"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	_ "github.com/lib/pq"
+	stdopentracing "github.com/opentracing/opentracing-go"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go_scafold/entity"
 	repo "go_scafold/entity/db"
 	service "go_scafold/entity/implementation"
@@ -51,6 +57,22 @@ func main() {
 		}
 	}(level.Info(logger), "msg", "service ended")
 
+	tracer := stdopentracing.GlobalTracer()
+
+	var duration metrics.Histogram
+	{
+		// Endpoint-level metrics.
+		duration = prometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "example",
+			Subsystem: "addsvc",
+			Name:      "request_duration_seconds",
+			Help:      "Request duration in seconds.",
+		}, []string{"method", "success"})
+	}
+	http.DefaultServeMux.Handle("/metrics", promhttp.Handler())
+
+	ctx := context.Background()
+
 	var db *sql.DB
 	{
 		db, err = sql.Open("postgres", dbSource)
@@ -86,12 +108,12 @@ func main() {
 		svc = service.NewService(repository, logger)
 	}
 
-	endpoints := transport.MakeEndpoints(svc)
+	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
 
 	var h http.Handler
 	{
 		var serverOptions []kithttp.ServerOption
-		h = httptransport.NewHTTPServer(endpoints, serverOptions)
+		h = httptransport.NewHTTPServer(ctx, endpoints, tracer, serverOptions, logger)
 	}
 
 	errChannel := make(chan error)

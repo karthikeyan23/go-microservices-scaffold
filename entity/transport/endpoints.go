@@ -2,17 +2,40 @@ package transport
 
 import (
 	"context"
+	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/metrics"
+	"github.com/go-kit/kit/ratelimit"
+	"github.com/go-kit/kit/tracing/opentracing"
+	"github.com/go-kit/log"
+	stdopentracing "github.com/opentracing/opentracing-go"
+	"github.com/sony/gobreaker"
 	"go_scafold/entity"
+	"golang.org/x/time/rate"
+	"time"
 )
 
 type Endpoints struct {
 	GetEntity endpoint.Endpoint
 }
 
-func MakeEndpoints(s entity.Service) Endpoints {
+func MakeEndpoints(s entity.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
+) Endpoints {
+
+	var getEntityEndpoint endpoint.Endpoint
+	{
+		getEntityEndpoint = makeGetEntityEndpoint(s)
+		getEntityEndpoint = ratelimit.NewErroringLimiter(rate.NewLimiter(
+			rate.Every(time.Second), 10))(getEntityEndpoint)
+		getEntityEndpoint = circuitbreaker.Gobreaker(gobreaker.NewCircuitBreaker(gobreaker.Settings{
+			Name:    "get-entity",
+			Timeout: 30 * time.Second,
+		}))(getEntityEndpoint)
+		getEntityEndpoint = opentracing.TraceEndpoint(tracer, "get-entity")(getEntityEndpoint)
+		getEntityEndpoint = instrumentingMiddleware(duration.With("method", "get-entity"))(getEntityEndpoint)
+	}
 	return Endpoints{
-		GetEntity: makeGetEntityEndpoint(s),
+		GetEntity: getEntityEndpoint,
 	}
 }
 
