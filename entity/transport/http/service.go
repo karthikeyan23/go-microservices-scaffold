@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sony/gobreaker"
 	"go_scafold/entity"
 	"go_scafold/entity/transport"
 	"net/http"
@@ -76,6 +77,10 @@ func encodeErrorResponse(_ context.Context, err error, w http.ResponseWriter) {
 
 func codeFrom(err error) int {
 	switch err {
+	case gobreaker.ErrTooManyRequests:
+		return http.StatusTooManyRequests
+	case gobreaker.ErrOpenState:
+		return http.StatusServiceUnavailable
 	case entity.ErrEntityNotFound:
 		return http.StatusBadRequest
 	case ratelimit.ErrLimited:
