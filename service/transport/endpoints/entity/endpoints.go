@@ -13,11 +13,6 @@ import (
 
 func MakeEndpoints(endpoints *common.Endpoints, s domain.Service, logger log.Logger, duration metrics.Histogram,
 	tracer stdopentracing.Tracer) {
-	getEntityEndpoints(endpoints, s, logger, duration, tracer)
-}
-
-func getEntityEndpoints(endpoints *common.Endpoints, s domain.Service, logger log.Logger, duration metrics.Histogram,
-	tracer stdopentracing.Tracer) {
 	var getEntityEndpoint endpoint.Endpoint
 	{
 		getEntityEndpoint = common.InitEndpoint(makeGetEntityEndpoint(s),
