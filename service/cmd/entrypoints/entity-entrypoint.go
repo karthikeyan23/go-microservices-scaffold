@@ -8,7 +8,7 @@ import (
 	stdopentracing "github.com/opentracing/opentracing-go"
 	repo "go_scafold/service/db"
 	domain "go_scafold/service/domain/entity"
-	transport "go_scafold/service/transport/endpoints"
+	entity "go_scafold/service/transport/endpoints/entity"
 	"os"
 )
 
@@ -17,7 +17,7 @@ func addEntityServicesAndGetEndpoints(db *sql.DB, logger log.Logger, duration me
 	//Initialize the entity repository
 	svc := initRepoAndService(db, logger)
 	//Initialize the entity Endpoints
-	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
+	endpoints := entity.MakeEndpoints(svc, logger, duration, tracer)
 	return endpoints
 }
 

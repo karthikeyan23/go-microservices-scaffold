@@ -15,7 +15,13 @@ type Endpoints struct {
 	GetEntity endpoint.Endpoint
 }
 
-func GetEntityEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
+func MakeEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
+) interface{} {
+	endpoints := getEntityEndpoints(s, logger, duration, tracer)
+	return endpoints
+}
+
+func getEntityEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
 ) Endpoints {
 	var getEntityEndpoint endpoint.Endpoint
 	{
