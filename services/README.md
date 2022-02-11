@@ -1,0 +1,1 @@
+Project structure for a single microservice
