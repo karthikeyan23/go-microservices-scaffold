@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/sony/gobreaker"
-	"go_scafold/services/model"
+	"go_scafold/service/model"
 	"net/http"
 )
 

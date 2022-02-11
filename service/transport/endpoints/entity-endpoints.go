@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/log"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	"go_scafold/services/model"
+	"go_scafold/service/model"
 	"time"
 )
 

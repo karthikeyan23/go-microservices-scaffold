@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 	"github.com/gorilla/mux"
-	transport "go_scafold/services/transport/endpoints"
+	transport "go_scafold/service/transport/endpoints"
 	"net/http"
 )
 

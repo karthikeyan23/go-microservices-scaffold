@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	transport "go_scafold/services/transport/endpoints"
+	transport "go_scafold/service/transport/endpoints"
 )
 
 func addHTTPRoutes(r *mux.Router, endpoints transport.Endpoints, options []kithttp.ServerOption,

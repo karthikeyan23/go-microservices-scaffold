@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"go_scafold/services/model"
+	"go_scafold/service/model"
 )
 
 // The Business service-implementation of the Service service-interface.
