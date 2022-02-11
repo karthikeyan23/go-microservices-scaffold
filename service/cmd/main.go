@@ -13,9 +13,7 @@ import (
 	_ "github.com/lib/pq"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	repo "go_scafold/service/db"
-	service "go_scafold/service/implementation"
-	"go_scafold/service/model"
+	domain "go_scafold/service/cmd/entrypoints"
 	transport "go_scafold/service/transport/endpoints"
 	httptransport "go_scafold/service/transport/http"
 	"net/http"
@@ -48,7 +46,7 @@ func main() {
 	//Close the database connection on service exit
 	defer closeDB(db, logger)
 	//Initialise all services in the project
-	endpoints := initServicesAndEndPoints(db, logger, duration, tracer)
+	endpoints := domain.InitServicesAndEndPoints(db, logger, duration, tracer)
 	//initialize the HTTP transport
 	httpTransportHandler := addHTTPTransport(ctx, endpoints, tracer, logger)
 	//Channel to listen for service exit
@@ -58,22 +56,6 @@ func main() {
 	go startHttpServer(logger, httpTransportHandler, httpAddr, errChannel)
 	//Print the error on service exit
 	_ = level.Error(logger).Log("exit", <-errChannel)
-}
-
-func initServicesAndEndPoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,
-	tracer stdopentracing.Tracer) transport.Endpoints {
-	endpoints := addEntityServicesAndGetEndpoints(db, logger, duration, tracer)
-	//Add more services here
-	return endpoints
-}
-
-func addEntityServicesAndGetEndpoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,
-	tracer stdopentracing.Tracer) transport.Endpoints {
-	//Initialize the entity repository
-	svc := initRepoAndService(db, logger)
-	//Initialize the entity Endpoints
-	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
-	return endpoints
 }
 
 func addHTTPTransport(ctx context.Context, endpoints transport.Endpoints, tracer stdopentracing.Tracer, logger log.Logger) http.Handler {
@@ -113,19 +95,6 @@ func waitForInterrupt(errChannel chan error) {
 	c := make(chan os.Signal)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	errChannel <- fmt.Errorf("%s", <-c)
-}
-
-func initRepoAndService(db *sql.DB, logger log.Logger) model.EntityService {
-	var svc model.EntityService
-	{
-		repository, err := repo.New(db, logger)
-		if err != nil {
-			_ = level.Error(logger).Log("exit", err)
-			os.Exit(-1)
-		}
-		svc = service.NewService(repository, logger)
-	}
-	return svc
 }
 
 func initDB(dbSource string, logger log.Logger) *sql.DB {
