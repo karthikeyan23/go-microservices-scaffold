@@ -8,12 +8,13 @@ import (
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	common "go_scafold/service/transport/http/common"
+	endpointcommon "go_scafold/service/transport/endpoints/common"
+	"go_scafold/service/transport/http/common"
 	"go_scafold/service/transport/http/entity"
 	"net/http"
 )
 
-func NewHTTPServer(ctx context.Context, endpoints interface{}, tracer stdopentracing.Tracer,
+func NewHTTPServer(ctx context.Context, endpoints endpointcommon.Endpoints, tracer stdopentracing.Tracer,
 	options []kithttp.ServerOption, logger log.Logger) http.Handler {
 	r, options := initMuxRouter(logger, options)
 	entity.AddHTTPRoutes(r, endpoints, options, tracer, logger)

@@ -14,6 +14,7 @@ import (
 	stdopentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	entry "go_scafold/service/cmd/entrypoints"
+	common "go_scafold/service/transport/endpoints/common"
 	httptransport "go_scafold/service/transport/http"
 	"net/http"
 	"os"
@@ -30,7 +31,7 @@ func main() {
 	//Create a logger
 	logger, err := initLogger()
 	if err != nil {
-		return
+		os.Exit(-1)
 	}
 	//Print the log on service exit
 	defer onServiceClose(logger)
@@ -45,7 +46,10 @@ func main() {
 	//Close the database connection on service exit
 	defer closeDB(db, logger)
 	//Initialise all services in the project
-	endpoints := entry.InitServicesAndEndPoints(db, logger, duration, tracer)
+	endpoints, err := entry.InitServicesAndEndPoints(db, logger, duration, tracer)
+	if err != nil {
+		os.Exit(-1)
+	}
 	//initialize the HTTP transport
 	httpTransportHandler := addHTTPTransport(ctx, endpoints, tracer, logger)
 	//Channel to listen for service exit
@@ -57,7 +61,7 @@ func main() {
 	_ = level.Error(logger).Log("exit", <-errChannel)
 }
 
-func addHTTPTransport(ctx context.Context, endpoints interface{}, tracer stdopentracing.Tracer, logger log.Logger) http.Handler {
+func addHTTPTransport(ctx context.Context, endpoints common.Endpoints, tracer stdopentracing.Tracer, logger log.Logger) http.Handler {
 	var h http.Handler
 	{
 		var serverOptions []kithttp.ServerOption

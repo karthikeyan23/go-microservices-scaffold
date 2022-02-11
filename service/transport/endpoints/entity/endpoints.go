@@ -11,18 +11,14 @@ import (
 	"time"
 )
 
-type Endpoints struct {
-	GetEntity endpoint.Endpoint
-}
-
-func MakeEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
-) interface{} {
-	endpoints := getEntityEndpoints(s, logger, duration, tracer)
+func MakeEndpoints(endpoints *common.Endpoints, s domain.Service, logger log.Logger, duration metrics.Histogram,
+	tracer stdopentracing.Tracer) *common.Endpoints {
+	getEntityEndpoints(endpoints, s, logger, duration, tracer)
 	return endpoints
 }
 
-func getEntityEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
-) Endpoints {
+func getEntityEndpoints(endpoints *common.Endpoints, s domain.Service, logger log.Logger, duration metrics.Histogram,
+	tracer stdopentracing.Tracer) *common.Endpoints {
 	var getEntityEndpoint endpoint.Endpoint
 	{
 		getEntityEndpoint = common.InitEndpoint(makeGetEntityEndpoint(s),
@@ -34,9 +30,8 @@ func getEntityEndpoints(s domain.Service, logger log.Logger, duration metrics.Hi
 			duration,
 			tracer)
 	}
-	return Endpoints{
-		GetEntity: getEntityEndpoint,
-	}
+	endpoints.GetEntity = getEntityEndpoint
+	return endpoints
 }
 
 func makeGetEntityEndpoint(s domain.Service) endpoint.Endpoint {

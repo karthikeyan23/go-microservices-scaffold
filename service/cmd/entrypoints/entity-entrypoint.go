@@ -8,16 +8,17 @@ import (
 	stdopentracing "github.com/opentracing/opentracing-go"
 	repo "go_scafold/service/db"
 	domain "go_scafold/service/domain/entity"
+	common "go_scafold/service/transport/endpoints/common"
 	entity "go_scafold/service/transport/endpoints/entity"
 	"os"
 )
 
-func addEntityServicesAndGetEndpoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,
-	tracer stdopentracing.Tracer) interface{} {
+func addEntityServicesAndGetEndpoints(endpoints *common.Endpoints, db *sql.DB, logger log.Logger,
+	duration metrics.Histogram, tracer stdopentracing.Tracer) *common.Endpoints {
 	//Initialize the entity repository
 	svc := initRepoAndService(db, logger)
 	//Initialize the entity Endpoints
-	endpoints := entity.MakeEndpoints(svc, logger, duration, tracer)
+	entity.MakeEndpoints(endpoints, svc, logger, duration, tracer)
 	return endpoints
 }
 
