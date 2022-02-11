@@ -3,22 +3,11 @@ package common
 import (
 	"context"
 	"crypto/rsa"
-	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/lestrrat-go/jwx/jwk"
 	"net/http"
 	"strings"
-)
-
-var (
-	ErrEmptyAuthHeader        = errors.New("authorization header is empty")
-	ErrMalformedToken         = errors.New("malformed Token")
-	ErrBadRouting             = errors.New("bad routing")
-	ErrKIDNotFound            = errors.New("kid header not found")
-	ErrUnableToParsePublicKey = errors.New("could not parse public key")
-	ErrUnexpectedTokenVersion = errors.New("unexpected token version")
-	ErrJwtTokenInvalid        = errors.New("invalid JWT token")
 )
 
 func GenericMiddlewareToSetHTTPHeader(next http.Handler) http.Handler {
