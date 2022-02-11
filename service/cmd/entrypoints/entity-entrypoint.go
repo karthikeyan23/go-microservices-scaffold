@@ -14,12 +14,11 @@ import (
 )
 
 func addEntityServicesAndGetEndpoints(endpoints *common.Endpoints, db *sql.DB, logger log.Logger,
-	duration metrics.Histogram, tracer stdopentracing.Tracer) *common.Endpoints {
+	duration metrics.Histogram, tracer stdopentracing.Tracer) {
 	//Initialize the entity repository
 	svc := initRepoAndService(db, logger)
 	//Initialize the entity Endpoints
 	entity.MakeEndpoints(endpoints, svc, logger, duration, tracer)
-	return endpoints
 }
 
 func initRepoAndService(db *sql.DB, logger log.Logger) domain.Service {
