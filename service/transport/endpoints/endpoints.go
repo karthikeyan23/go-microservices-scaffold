@@ -5,14 +5,14 @@ import (
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/log"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	"go_scafold/service/model"
+	domain "go_scafold/service/domain/entity"
 )
 
 type Endpoints struct {
 	GetEntity endpoint.Endpoint
 }
 
-func MakeEndpoints(s model.EntityService, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
+func MakeEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
 ) Endpoints {
 
 	endpoints := getEntityEndpoints(s, logger, duration, tracer)

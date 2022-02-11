@@ -1,4 +1,4 @@
-package model
+package entity
 
 import (
 	"context"
@@ -9,8 +9,8 @@ var (
 	ErrEntityNotFound = errors.New("entity not found")
 )
 
-// EntityService Interface contains the methods that are exposed to the transport layer.
-type EntityService interface {
+// Service Interface contains the methods that are exposed to the transport layer.
+type Service interface {
 	GetEntity(ctx context.Context, id string) (*Entity, error)
 	CreateEntity(ctx context.Context, entity *Entity) error
 	UpdateEntity(ctx context.Context, user *Entity) error

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/sony/gobreaker"
-	"go_scafold/service/model"
+	domain "go_scafold/service/domain/entity"
 	"net/http"
 )
 
@@ -40,7 +40,7 @@ func codeFrom(err error) int {
 		return http.StatusTooManyRequests
 	case gobreaker.ErrOpenState:
 		return http.StatusServiceUnavailable
-	case model.ErrEntityNotFound:
+	case domain.ErrEntityNotFound:
 		return http.StatusBadRequest
 	case ratelimit.ErrLimited:
 		return http.StatusTooManyRequests

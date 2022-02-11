@@ -6,11 +6,11 @@ import (
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/log"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	"go_scafold/service/model"
+	domain "go_scafold/service/domain/entity"
 	"time"
 )
 
-func getEntityEndpoints(s model.EntityService, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
+func getEntityEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
 ) Endpoints {
 	var getEntityEndpoint endpoint.Endpoint
 	{
@@ -28,7 +28,7 @@ func getEntityEndpoints(s model.EntityService, logger log.Logger, duration metri
 	}
 }
 
-func makeGetEntityEndpoint(s model.EntityService) endpoint.Endpoint {
+func makeGetEntityEndpoint(s domain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(GetEntityByIDRequest)
 		aEntity, err := s.GetEntity(ctx, req.ID)

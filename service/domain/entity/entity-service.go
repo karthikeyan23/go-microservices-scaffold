@@ -1,27 +1,26 @@
-package implementation
+package entity
 
 import (
 	"context"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"go_scafold/service/model"
 )
 
 // The Business service-implementation of the Service service-interface.
 type service struct {
-	repository model.Repository
+	repository Repository
 	logger     log.Logger
 }
 
 // NewService Creates the service and returns a pointer with Service methods implemented.
-func NewService(repository model.Repository, logger log.Logger) model.EntityService {
+func NewService(repository Repository, logger log.Logger) Service {
 	return &service{
 		repository: repository,
 		logger:     logger,
 	}
 }
 
-func (s service) GetEntity(ctx context.Context, id string) (*model.Entity, error) {
+func (s service) GetEntity(ctx context.Context, id string) (*Entity, error) {
 	logger := log.With(s.logger, "method", "get-entity")
 	aEntity, err := s.repository.Get(ctx, id)
 	if err != nil {
@@ -29,17 +28,17 @@ func (s service) GetEntity(ctx context.Context, id string) (*model.Entity, error
 		return nil, err
 	}
 	if aEntity == nil {
-		return nil, model.ErrEntityNotFound
+		return nil, ErrEntityNotFound
 	}
 	return aEntity, nil
 }
 
-func (s service) CreateEntity(ctx context.Context, entity *model.Entity) error {
+func (s service) CreateEntity(ctx context.Context, entity *Entity) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s service) UpdateEntity(ctx context.Context, user *model.Entity) error {
+func (s service) UpdateEntity(ctx context.Context, user *Entity) error {
 	//TODO implement me
 	panic("implement me")
 }
