@@ -1,4 +1,4 @@
-package endpoints
+package common
 
 import (
 	"github.com/go-kit/kit/circuitbreaker"
@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func initEndpoint(endpoint endpoint.Endpoint, name string, circuitBreakerTimeout time.Duration,
+func InitEndpoint(endpoint endpoint.Endpoint, name string, circuitBreakerTimeout time.Duration,
 	rateLimit int,
 	rateLimitDuration time.Duration,
 	logger log.Logger,
@@ -27,6 +27,6 @@ func initEndpoint(endpoint endpoint.Endpoint, name string, circuitBreakerTimeout
 		Timeout: circuitBreakerTimeout,
 	}))(endpoint)
 	endpoint = opentracing.TraceEndpoint(tracer, name)(endpoint)
-	endpoint = instrumentationMiddleware(duration.With("method", name))(endpoint)
+	endpoint = InstrumentationMiddleware(duration.With("method", name))(endpoint)
 	return endpoint
 }

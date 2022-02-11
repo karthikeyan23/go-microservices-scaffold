@@ -1,4 +1,4 @@
-package http
+package common
 
 import (
 	"context"
@@ -9,11 +9,11 @@ import (
 	"net/http"
 )
 
-func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func EncodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	if e, ok := response.(errorInterface); ok && e.error() != nil {
 		// Not a Go kit transport error, but a business-logic error.
 		// Provide those as HTTP errors.
-		encodeErrorResponse(ctx, e.error(), w)
+		EncodeErrorResponse(ctx, e.error(), w)
 		return nil
 	}
 	return json.NewEncoder(w).Encode(response)
@@ -23,7 +23,7 @@ type errorInterface interface {
 	error() error
 }
 
-func encodeErrorResponse(_ context.Context, err error, w http.ResponseWriter) {
+func EncodeErrorResponse(_ context.Context, err error, w http.ResponseWriter) {
 	if err == nil {
 		panic("encodeError with nil error")
 	}

@@ -1,4 +1,4 @@
-package endpoints
+package entity
 
 import (
 	"context"
@@ -7,14 +7,19 @@ import (
 	"github.com/go-kit/log"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	domain "go_scafold/service/domain/entity"
+	common "go_scafold/service/transport/endpoints/common"
 	"time"
 )
 
-func getEntityEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
+type Endpoints struct {
+	GetEntity endpoint.Endpoint
+}
+
+func GetEntityEndpoints(s domain.Service, logger log.Logger, duration metrics.Histogram, tracer stdopentracing.Tracer,
 ) Endpoints {
 	var getEntityEndpoint endpoint.Endpoint
 	{
-		getEntityEndpoint = initEndpoint(makeGetEntityEndpoint(s),
+		getEntityEndpoint = common.InitEndpoint(makeGetEntityEndpoint(s),
 			"get-entity",
 			30*time.Second,
 			5,

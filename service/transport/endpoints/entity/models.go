@@ -1,4 +1,4 @@
-package endpoints
+package entity
 
 import "time"
 

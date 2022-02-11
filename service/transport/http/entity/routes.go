@@ -1,4 +1,4 @@
-package http
+package entity
 
 import (
 	"github.com/go-kit/kit/tracing/opentracing"
@@ -6,14 +6,15 @@ import (
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	transport "go_scafold/service/transport/endpoints"
+	entity "go_scafold/service/transport/endpoints/entity"
+	common "go_scafold/service/transport/http/common"
 )
 
-func addHTTPRoutes(r *mux.Router, endpoints transport.Endpoints, options []kithttp.ServerOption,
+func AddHTTPRoutes(r *mux.Router, endpoints interface{}, options []kithttp.ServerOption,
 	tracer stdopentracing.Tracer, logger log.Logger) *mux.Route {
 	return r.Methods("GET").Path("/entity/{id}").Handler(kithttp.NewServer(
-		endpoints.GetEntity,
+		endpoints.(entity.Endpoints).GetEntity,
 		decodeGetEntityRequest,
-		encodeResponse,
+		common.EncodeResponse,
 		append(options, kithttp.ServerBefore(opentracing.HTTPToContext(tracer, "entity", logger)))...))
 }

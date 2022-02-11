@@ -1,4 +1,4 @@
-package endpoints
+package common
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func instrumentationMiddleware(duration metrics.Histogram) endpoint.Middleware {
+func InstrumentationMiddleware(duration metrics.Histogram) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 			defer func(begin time.Time) {

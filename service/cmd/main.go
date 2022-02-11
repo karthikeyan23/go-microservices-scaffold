@@ -14,7 +14,6 @@ import (
 	stdopentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	entry "go_scafold/service/cmd/entrypoints"
-	transport "go_scafold/service/transport/endpoints"
 	httptransport "go_scafold/service/transport/http"
 	"net/http"
 	"os"
@@ -58,7 +57,7 @@ func main() {
 	_ = level.Error(logger).Log("exit", <-errChannel)
 }
 
-func addHTTPTransport(ctx context.Context, endpoints transport.Endpoints, tracer stdopentracing.Tracer, logger log.Logger) http.Handler {
+func addHTTPTransport(ctx context.Context, endpoints interface{}, tracer stdopentracing.Tracer, logger log.Logger) http.Handler {
 	var h http.Handler
 	{
 		var serverOptions []kithttp.ServerOption

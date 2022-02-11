@@ -13,7 +13,7 @@ import (
 )
 
 func addEntityServicesAndGetEndpoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,
-	tracer stdopentracing.Tracer) transport.Endpoints {
+	tracer stdopentracing.Tracer) interface{} {
 	//Initialize the entity repository
 	svc := initRepoAndService(db, logger)
 	//Initialize the entity Endpoints

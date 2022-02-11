@@ -1,4 +1,4 @@
-package http
+package common
 
 import (
 	"context"
@@ -21,14 +21,14 @@ var (
 	ErrJwtTokenInvalid        = errors.New("invalid JWT token")
 )
 
-func genericMiddlewareToSetHTTPHeader(next http.Handler) http.Handler {
+func GenericMiddlewareToSetHTTPHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		next.ServeHTTP(w, r)
 	})
 }
 
-func jwtMiddlewareForMicrosoftIdentity(next http.Handler) http.Handler {
+func JwtMiddlewareForMicrosoftIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		jwtToken, err := getJWTTokenFromHTTPHeader(w, r)
 		if err != nil {
