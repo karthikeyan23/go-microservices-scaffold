@@ -43,14 +43,12 @@ func main() {
 	duration := initDurationMetrics()
 	//Create a context
 	ctx := context.Background()
-	//Initialize the DataBase
+
 	db := initDB(dbSource, logger)
 	//Close the database connection on service exit
 	defer closeDB(db, logger)
-	//Initialize the repository
-	svc := initRepo(db, logger)
-	//Initialize the Endpoints
-	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
+	endpoints := initServicesAndEndPoints(db, logger, duration, tracer)
+
 	//initialize the HTTP transport
 	var h http.Handler
 	{
@@ -64,6 +62,22 @@ func main() {
 	go startHttpServer(logger, h, httpAddr, errChannel)
 	//Print the error on service exit
 	_ = level.Error(logger).Log("exit", <-errChannel)
+}
+
+func initServicesAndEndPoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,
+	tracer stdopentracing.Tracer) transport.Endpoints {
+	endpoints := addEntityServicesAndGetEndpoints(db, logger, duration, tracer)
+	//Add more services here
+	return endpoints
+}
+
+func addEntityServicesAndGetEndpoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,
+	tracer stdopentracing.Tracer) transport.Endpoints {
+	//Initialize the repository
+	svc := initRepoAndService(db, logger)
+	//Initialize the Endpoints
+	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
+	return endpoints
 }
 
 func serviceClosure(logger log.Logger) {
@@ -96,7 +110,7 @@ func waitForInterrupt(errChannel chan error) {
 	errChannel <- fmt.Errorf("%s", <-c)
 }
 
-func initRepo(db *sql.DB, logger log.Logger) entity.Service {
+func initRepoAndService(db *sql.DB, logger log.Logger) entity.Service {
 	var svc entity.Service
 	{
 		repository, err := repo.New(db, logger)
