@@ -11,3 +11,11 @@ type GetEntityByIDResponse struct {
 	Name      string    `json:"entity_name"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type GetAppDataRequest struct {
+	data int
+}
+
+type GetAppDataResponse struct {
+	data bool
+}

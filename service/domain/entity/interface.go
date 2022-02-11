@@ -15,4 +15,5 @@ type Service interface {
 	CreateEntity(ctx context.Context, entity *Entity) error
 	UpdateEntity(ctx context.Context, user *Entity) error
 	DeleteEntity(ctx context.Context, id string) error
+	GetDataFromApp(ctx context.Context, input interface{}) (interface{}, error)
 }

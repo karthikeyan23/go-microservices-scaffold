@@ -11,10 +11,16 @@ import (
 )
 
 func AddHTTPRoutes(r *mux.Router, endpoints endpointcommon.Endpoints, options []kithttp.ServerOption,
-	tracer stdopentracing.Tracer, logger log.Logger) *mux.Route {
-	return r.Methods("GET").Path("/entity/{id}").Handler(kithttp.NewServer(
+	tracer stdopentracing.Tracer, logger log.Logger) {
+	r.Methods("GET").Path("/entity/app").Handler(kithttp.NewServer(
+		endpoints.GetAppData,
+		decodeGeAppDataRequest,
+		common.EncodeResponse,
+		append(options, kithttp.ServerBefore(opentracing.HTTPToContext(tracer, "get app data", logger)))...))
+
+	r.Methods("GET").Path("/entity/{id}").Handler(kithttp.NewServer(
 		endpoints.GetEntity,
 		decodeGetEntityRequest,
 		common.EncodeResponse,
-		append(options, kithttp.ServerBefore(opentracing.HTTPToContext(tracer, "entity", logger)))...))
+		append(options, kithttp.ServerBefore(opentracing.HTTPToContext(tracer, "get entity", logger)))...))
 }

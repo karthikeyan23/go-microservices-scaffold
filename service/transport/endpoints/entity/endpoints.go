@@ -25,6 +25,19 @@ func MakeEndpoints(endpoints *common.Endpoints, s domain.Service, logger log.Log
 			tracer)
 	}
 	endpoints.GetEntity = getEntityEndpoint
+
+	var getAppDataEndPoint endpoint.Endpoint
+	{
+		getAppDataEndPoint = common.InitEndpoint(makeGetAppDataEndpoint(s),
+			"get-app-data",
+			30*time.Second,
+			5,
+			time.Second,
+			logger,
+			duration,
+			tracer)
+	}
+	endpoints.GetAppData = getAppDataEndPoint
 }
 
 func makeGetEntityEndpoint(s domain.Service) endpoint.Endpoint {
@@ -39,5 +52,18 @@ func makeGetEntityEndpoint(s domain.Service) endpoint.Endpoint {
 				Name:      aEntity.Name,
 				CreatedAt: aEntity.CreatedAt},
 			nil
+	}
+}
+
+func makeGetAppDataEndpoint(s domain.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(GetAppDataRequest)
+		data, err := s.GetDataFromApp(ctx, req)
+		var res GetAppDataResponse
+		if err != nil {
+			return nil, err
+		}
+		res.data = data.(bool)
+		return res, nil
 	}
 }

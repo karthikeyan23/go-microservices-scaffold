@@ -8,15 +8,17 @@ import (
 
 // The Business service-implementation of the Service service-interface.
 type service struct {
-	repository Repository
-	logger     log.Logger
+	externalApp ExternalApp
+	repository  Repository
+	logger      log.Logger
 }
 
 // NewService Creates the service and returns a pointer with Service methods implemented.
-func NewService(repository Repository, logger log.Logger) Service {
+func NewService(repository Repository, externalApp ExternalApp, logger log.Logger) Service {
 	return &service{
-		repository: repository,
-		logger:     logger,
+		externalApp: externalApp,
+		repository:  repository,
+		logger:      logger,
 	}
 }
 
@@ -46,4 +48,8 @@ func (s service) UpdateEntity(ctx context.Context, user *Entity) error {
 func (s service) DeleteEntity(ctx context.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (s service) GetDataFromApp(ctx context.Context, input interface{}) (interface{}, error) {
+	return s.externalApp.GetData(ctx, input)
 }

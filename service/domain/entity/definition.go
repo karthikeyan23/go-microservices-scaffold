@@ -25,3 +25,8 @@ type Repository interface {
 	// Delete deletes an entity
 	Delete(ctx context.Context, id string) error
 }
+
+// ExternalApp is a generic definition for external app operations
+type ExternalApp interface {
+	GetData(ctx context.Context, inout interface{}) (interface{}, error)
+}

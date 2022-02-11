@@ -8,6 +8,7 @@ import (
 	stdopentracing "github.com/opentracing/opentracing-go"
 	repo "go_scafold/service/db"
 	domain "go_scafold/service/domain/entity"
+	app "go_scafold/service/external-services"
 	common "go_scafold/service/transport/endpoints/common"
 	entity "go_scafold/service/transport/endpoints/entity"
 	"os"
@@ -29,7 +30,12 @@ func initRepoAndService(db *sql.DB, logger log.Logger) domain.Service {
 			_ = level.Error(logger).Log("exit", err)
 			os.Exit(-1)
 		}
-		svc = domain.NewService(repository, logger)
+		externalApp, err := app.NewExternalApp(logger)
+		if err != nil {
+			_ = level.Error(logger).Log("exit", err)
+			os.Exit(-1)
+		}
+		svc = domain.NewService(repository, externalApp, logger)
 	}
 	return svc
 }
