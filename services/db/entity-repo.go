@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"go_scafold/example-service-1/model"
+	"go_scafold/services/model"
 )
 
 type repository struct {
