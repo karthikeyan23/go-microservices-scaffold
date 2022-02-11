@@ -13,9 +13,9 @@ type GetEntityByIDResponse struct {
 }
 
 type GetAppDataRequest struct {
-	data int
+	Data int `json:"input"`
 }
 
 type GetAppDataResponse struct {
-	data bool
+	Data bool `json:"output"`
 }

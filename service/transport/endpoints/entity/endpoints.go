@@ -63,7 +63,7 @@ func makeGetAppDataEndpoint(s domain.Service) endpoint.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		res.data = data.(bool)
+		res.Data = data.(bool)
 		return res, nil
 	}
 }
