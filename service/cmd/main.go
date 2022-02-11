@@ -160,7 +160,7 @@ func initLogger() (log.Logger, error) {
 	{
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 		logger = log.With(logger,
-			"service",
+			"service", "service_name",
 			"time:", log.DefaultTimestampUTC,
 			"caller:", log.DefaultCaller,
 		)
