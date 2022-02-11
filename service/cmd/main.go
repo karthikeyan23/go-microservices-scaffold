@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	domain "go_scafold/service/cmd/entrypoints"
+	entry "go_scafold/service/cmd/entrypoints"
 	transport "go_scafold/service/transport/endpoints"
 	httptransport "go_scafold/service/transport/http"
 	"net/http"
@@ -46,7 +46,7 @@ func main() {
 	//Close the database connection on service exit
 	defer closeDB(db, logger)
 	//Initialise all services in the project
-	endpoints := domain.InitServicesAndEndPoints(db, logger, duration, tracer)
+	endpoints := entry.InitServicesAndEndPoints(db, logger, duration, tracer)
 	//initialize the HTTP transport
 	httpTransportHandler := addHTTPTransport(ctx, endpoints, tracer, logger)
 	//Channel to listen for service exit
