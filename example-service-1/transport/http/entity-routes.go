@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	"go_scafold/entity/transport"
+	transport "go_scafold/example-service-1/transport/endpoints"
 )
 
 func addHTTPRoutes(r *mux.Router, endpoints transport.Endpoints, options []kithttp.ServerOption,
@@ -15,5 +15,5 @@ func addHTTPRoutes(r *mux.Router, endpoints transport.Endpoints, options []kitht
 		endpoints.GetEntity,
 		decodeGetEntityRequest,
 		encodeResponse,
-		append(options, kithttp.ServerBefore(opentracing.HTTPToContext(tracer, "get-entity", logger)))...))
+		append(options, kithttp.ServerBefore(opentracing.HTTPToContext(tracer, "entity", logger)))...))
 }

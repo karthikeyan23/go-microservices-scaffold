@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go_scafold/entity/transport"
+	transport "go_scafold/example-service-1/transport/endpoints"
 	"net/http"
 )
 

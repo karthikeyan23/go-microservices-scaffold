@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/sony/gobreaker"
-	"go_scafold/entity"
+	"go_scafold/example-service-1/model"
 	"net/http"
 )
 
@@ -29,7 +29,7 @@ func encodeErrorResponse(_ context.Context, err error, w http.ResponseWriter) {
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(codeFrom(err))
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"error": err.Error(),
 	})
 }
@@ -40,7 +40,7 @@ func codeFrom(err error) int {
 		return http.StatusTooManyRequests
 	case gobreaker.ErrOpenState:
 		return http.StatusServiceUnavailable
-	case entity.ErrEntityNotFound:
+	case model.ErrEntityNotFound:
 		return http.StatusBadRequest
 	case ratelimit.ErrLimited:
 		return http.StatusTooManyRequests

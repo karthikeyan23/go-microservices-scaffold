@@ -13,11 +13,11 @@ import (
 	_ "github.com/lib/pq"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	"go_scafold/entity"
-	repo "go_scafold/entity/db"
-	service "go_scafold/entity/implementation"
-	transport "go_scafold/entity/transport"
-	httptransport "go_scafold/entity/transport/http"
+	repo "go_scafold/example-service-1/db"
+	service "go_scafold/example-service-1/implementation"
+	"go_scafold/example-service-1/model"
+	transport "go_scafold/example-service-1/transport/endpoints"
+	httptransport "go_scafold/example-service-1/transport/http"
 	"net/http"
 	"os"
 	"os/signal"
@@ -36,7 +36,7 @@ func main() {
 		return
 	}
 	//Print the log on service exit
-	defer serviceClosure(logger)
+	defer onServiceClose(logger)
 	//Add OpenTracing tacker
 	tracer := stdopentracing.GlobalTracer()
 	//Create sparse metrics
@@ -47,19 +47,15 @@ func main() {
 	db := initDB(dbSource, logger)
 	//Close the database connection on service exit
 	defer closeDB(db, logger)
+	//Initialise all services in the project
 	endpoints := initServicesAndEndPoints(db, logger, duration, tracer)
-
 	//initialize the HTTP transport
-	var h http.Handler
-	{
-		var serverOptions []kithttp.ServerOption
-		h = httptransport.NewHTTPServer(ctx, endpoints, tracer, serverOptions, logger)
-	}
+	httpTransportHandler := addHTTPTransport(ctx, endpoints, tracer, logger)
 	//Channel to listen for service exit
 	errChannel := make(chan error)
 	go waitForInterrupt(errChannel)
 	//Start the HTTP server
-	go startHttpServer(logger, h, httpAddr, errChannel)
+	go startHttpServer(logger, httpTransportHandler, httpAddr, errChannel)
 	//Print the error on service exit
 	_ = level.Error(logger).Log("exit", <-errChannel)
 }
@@ -73,14 +69,23 @@ func initServicesAndEndPoints(db *sql.DB, logger log.Logger, duration metrics.Hi
 
 func addEntityServicesAndGetEndpoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,
 	tracer stdopentracing.Tracer) transport.Endpoints {
-	//Initialize the repository
+	//Initialize the entity repository
 	svc := initRepoAndService(db, logger)
-	//Initialize the Endpoints
+	//Initialize the entity Endpoints
 	endpoints := transport.MakeEndpoints(svc, logger, duration, tracer)
 	return endpoints
 }
 
-func serviceClosure(logger log.Logger) {
+func addHTTPTransport(ctx context.Context, endpoints transport.Endpoints, tracer stdopentracing.Tracer, logger log.Logger) http.Handler {
+	var h http.Handler
+	{
+		var serverOptions []kithttp.ServerOption
+		h = httptransport.NewHTTPServer(ctx, endpoints, tracer, serverOptions, logger)
+	}
+	return h
+}
+
+func onServiceClose(logger log.Logger) {
 	_ = level.Info(logger).Log("msg", "service terminating")
 }
 func closeDB(db *sql.DB, logger log.Logger) {
@@ -110,8 +115,8 @@ func waitForInterrupt(errChannel chan error) {
 	errChannel <- fmt.Errorf("%s", <-c)
 }
 
-func initRepoAndService(db *sql.DB, logger log.Logger) entity.Service {
-	var svc entity.Service
+func initRepoAndService(db *sql.DB, logger log.Logger) model.EntityService {
+	var svc model.EntityService
 	{
 		repository, err := repo.New(db, logger)
 		if err != nil {

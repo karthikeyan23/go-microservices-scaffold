@@ -1,4 +1,4 @@
-package entity
+package model
 
 import (
 	"context"
@@ -12,7 +12,7 @@ type Entity struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Repository is a generic interface for DB operations
+// Repository is a generic definition for DB operations
 type Repository interface {
 	// Create creates a new entity
 	Create(ctx context.Context, entity *Entity) error
