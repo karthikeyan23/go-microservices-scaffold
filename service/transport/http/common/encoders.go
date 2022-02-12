@@ -3,9 +3,9 @@ package common
 import (
 	"context"
 	"encoding/json"
+	domain "github.com/beezlabs-org/go_microservices_scaffold/service/domain/entity"
 	"github.com/go-kit/kit/ratelimit"
 	"github.com/sony/gobreaker"
-	domain "go_scafold/service/domain/entity"
 	"net/http"
 )
 

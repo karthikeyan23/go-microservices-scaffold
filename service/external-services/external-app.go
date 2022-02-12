@@ -2,8 +2,8 @@ package external_services
 
 import (
 	"context"
+	domain "github.com/beezlabs-org/go_microservices_scaffold/service/domain/entity"
 	"github.com/go-kit/log"
-	domain "go_scafold/service/domain/entity"
 )
 
 type externalApp struct {

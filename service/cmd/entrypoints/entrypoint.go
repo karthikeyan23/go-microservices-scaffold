@@ -2,10 +2,10 @@ package entrypoints
 
 import (
 	"database/sql"
+	common "github.com/beezlabs-org/go_microservices_scaffold/service/transport/endpoints/common"
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/log"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	common "go_scafold/service/transport/endpoints/common"
 )
 
 func InitServicesAndEndPoints(db *sql.DB, logger log.Logger, duration metrics.Histogram,

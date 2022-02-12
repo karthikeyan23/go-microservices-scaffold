@@ -2,15 +2,15 @@ package entrypoints
 
 import (
 	"database/sql"
+	repo "github.com/beezlabs-org/go_microservices_scaffold/service/db"
+	domain "github.com/beezlabs-org/go_microservices_scaffold/service/domain/entity"
+	app "github.com/beezlabs-org/go_microservices_scaffold/service/external-services"
+	common "github.com/beezlabs-org/go_microservices_scaffold/service/transport/endpoints/common"
+	entity "github.com/beezlabs-org/go_microservices_scaffold/service/transport/endpoints/entity"
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	stdopentracing "github.com/opentracing/opentracing-go"
-	repo "go_scafold/service/db"
-	domain "go_scafold/service/domain/entity"
-	app "go_scafold/service/external-services"
-	common "go_scafold/service/transport/endpoints/common"
-	entity "go_scafold/service/transport/endpoints/entity"
 	"os"
 )
 
