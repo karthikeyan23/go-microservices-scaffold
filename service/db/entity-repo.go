@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"database/sql"
-	domain "github.com/beezlabs-org/go_microservices_scaffold/service/domain/entity"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	domain "github.com/karthkeyan23/go_microservices_scaffold/service/domain/entity"
 )
 
 type repository struct {

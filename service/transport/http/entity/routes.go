@@ -1,12 +1,12 @@
 package entity
 
 import (
-	endpointcommon "github.com/beezlabs-org/go_microservices_scaffold/service/transport/endpoints/common"
-	"github.com/beezlabs-org/go_microservices_scaffold/service/transport/http/common"
 	"github.com/go-kit/kit/tracing/opentracing"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/go-kit/log"
 	"github.com/gorilla/mux"
+	endpointcommon "github.com/karthkeyan23/go_microservices_scaffold/service/transport/endpoints/common"
+	"github.com/karthkeyan23/go_microservices_scaffold/service/transport/http/common"
 	stdopentracing "github.com/opentracing/opentracing-go"
 )
 

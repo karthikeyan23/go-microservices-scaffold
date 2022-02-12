@@ -3,9 +3,9 @@ package entity
 import (
 	"context"
 	"encoding/json"
-	entity "github.com/beezlabs-org/go_microservices_scaffold/service/transport/endpoints/entity"
-	common "github.com/beezlabs-org/go_microservices_scaffold/service/transport/http/common"
 	"github.com/gorilla/mux"
+	entity "github.com/karthkeyan23/go_microservices_scaffold/service/transport/endpoints/entity"
+	common "github.com/karthkeyan23/go_microservices_scaffold/service/transport/http/common"
 	"net/http"
 )
 

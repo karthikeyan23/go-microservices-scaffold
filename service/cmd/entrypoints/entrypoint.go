@@ -2,9 +2,9 @@ package entrypoints
 
 import (
 	"database/sql"
-	common "github.com/beezlabs-org/go_microservices_scaffold/service/transport/endpoints/common"
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/log"
+	common "github.com/karthkeyan23/go_microservices_scaffold/service/transport/endpoints/common"
 	stdopentracing "github.com/opentracing/opentracing-go"
 )
 

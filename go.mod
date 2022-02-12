@@ -1,4 +1,4 @@
-module github.com/beezlabs-org/go_microservices_scaffold
+module github.com/karthkeyan23/go_microservices_scaffold
 
 go 1.16
 

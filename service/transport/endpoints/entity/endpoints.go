@@ -2,11 +2,11 @@ package entity
 
 import (
 	"context"
-	domain "github.com/beezlabs-org/go_microservices_scaffold/service/domain/entity"
-	common "github.com/beezlabs-org/go_microservices_scaffold/service/transport/endpoints/common"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/log"
+	domain "github.com/karthkeyan23/go_microservices_scaffold/service/domain/entity"
+	common "github.com/karthkeyan23/go_microservices_scaffold/service/transport/endpoints/common"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"time"
 )

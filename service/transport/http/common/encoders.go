@@ -3,8 +3,8 @@ package common
 import (
 	"context"
 	"encoding/json"
-	domain "github.com/beezlabs-org/go_microservices_scaffold/service/domain/entity"
 	"github.com/go-kit/kit/ratelimit"
+	domain "github.com/karthkeyan23/go_microservices_scaffold/service/domain/entity"
 	"github.com/sony/gobreaker"
 	"net/http"
 )
