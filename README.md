@@ -1,4 +1,4 @@
-##GO Lang based scaffold for creating a project with multiple microservices. 
+## GO Lang based scaffold for creating a project with multiple microservices. 
 
 This scaffold implements the **hexagonal architecture** with microservices. It clearly separates the business/domain logic from the transport, DB and external app services layer. The project structure is a mono-repo design and hence aims at accommodating multiple microservices in a single project.
 
